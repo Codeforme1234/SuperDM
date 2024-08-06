@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const next = require("next");
+const { translate } = require("@vitalets/google-translate-api");
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
@@ -22,6 +23,27 @@ app.prepare().then(() => {
     socket.on("disconnect", () => {
       console.log("A user disconnected");
     });
+  });
+
+  server.use(express.json()); // Add this line to parse JSON bodies
+
+  // Translation endpoint
+  async function trans() {
+    const { text } = translate("Привет, мир! Как дела?", { to: "en" });
+
+    console.log(text, "asfdaf"); // => 'Hello World! How are you?
+  }
+  trans();
+
+  server.post("/api/translate", async (req, res) => {
+    const { text, targetLanguage } = req.body;
+    try {
+      const result = await translate(text, { to: targetLanguage });
+      res.json({ translatedText: result.text });
+    } catch (error) {
+      console.error("Error translating text:", error);
+      res.status(500).json({ error: "Failed to translate text" });
+    }
   });
 
   server.all("*", (req, res) => {
