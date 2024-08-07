@@ -41,13 +41,32 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
                     className="w-10 h-10 mr-1 rounded"
                   />
                 </div>
-                <div className="max-w-[80%]">
-                  <div className="text-sm font-medium">{exp.position}</div>
-                  <div className="text-xs  opacity-95">{exp.company}</div>
-                  <div className="text-xs font-light opacity-80">
-                    {exp.duration}
+                {exp.role == 1 && (
+                  <div className="max-w-[80%]">
+                    <div className="text-sm font-medium">{exp.position}</div>
+                    <div className="text-xs  opacity-95">{exp.company}</div>
+                    <div className="text-xs font-light opacity-80">
+                      {exp.duration}
+                    </div>
                   </div>
-                </div>
+                )}
+                {exp.role > 1 && (
+                  <div className="max-w-[80%]">
+                    <div className="text-sm font-medium">{exp.company}</div>
+                    <div className="text-xs  opacity-95">{exp.duration}</div>
+                    {exp.roles.map((role, index) => (
+                      <div className="my-3" key={index}>
+                        <div className="text-xs font-medium">
+                          {role.position}
+                        </div>
+                        <div className="text-xs  opacity-95">{role.type}</div>
+                        <div className="text-xs font-light opacity-80">
+                          {role.duration}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </li>
           ))}
@@ -84,7 +103,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
         {" "}
         View full profile{" "}
       </div>
-      <Link href="https://www.linkedin.com/in/hridyanshsahu/">
+      <Link href={user.profileLink}>
         <div className=" text-sm text-blue-500 font-medium  rounded-xl mt-2 r text-center flex items-center justify-center p-3">
           <div className="mr-1">LinkedIn</div>
           <div>

@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import socket from "../lib/socket";
+import Link from "next/link";
 import { mockData } from "../data/mockData";
 import LanguageDropdown from "./LanguageDropdown";
 
@@ -14,7 +15,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId }) => {
     { sender: string; message: string | { line: string }[] }[]
   >([]);
   const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
+  const [loading, setLoading] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const user = mockData.users.find((user) => user.id === userId);
@@ -34,6 +37,35 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId }) => {
       socket.off("message");
     };
   }, [userId, selectedLanguage]);
+
+  // const fetchMoreMessages = useCallback(async () => {
+  //   if (loading) return;
+
+  //   setLoading(true);
+  //   const user = mockData.users.find((user) => user.id === userId);
+  //   if (user) {
+  //     // Fetch older messages (mocked here)
+  //     const olderMessages = await mockData.fetchOlderMessages(userId);
+  //     setMessages((prevMessages) => [...olderMessages, ...prevMessages]);
+  //     setLoading(false);
+  //   }
+  // }, [userId, loading]);
+
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     if (
+  //       chatContainerRef.current &&
+  //       chatContainerRef.current.scrollTop === 0
+  //     ) {
+  //       fetchMoreMessages();
+  //     }
+  //   };
+
+  //   chatContainerRef.current?.addEventListener("scroll", handleScroll);
+  //   return () => {
+  //     chatContainerRef.current?.removeEventListener("scroll", handleScroll);
+  //   };
+  // }, [fetchMoreMessages]);
 
   const sendMessage = async () => {
     if (message) {
@@ -89,24 +121,29 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId }) => {
   if (!user) return null;
 
   return (
-    <div className="flex flex-col h-full max-h-[90vh] scroll-smooth focus:scroll-auto overflow-y-auto">
+    <div className="flex flex-col h-full max-h-[90vh] overflow-y-auto">
       <div className="hidden sm:block">
-        <div className="min-h-[6vh]  px-3 text-[0.85rem] font-medium border-b-2 border-neutral-100 flex justify-between items-center">
-          <div className=" my-4">{user.name}</div>
+        <div className="min-h-[6vh] px-3 text-[0.85rem] font-medium border-b-2 border-neutral-100 flex justify-between items-center">
+          <div className="my-4">{user.name}</div>
           <LanguageDropdown onSelectLanguage={handleLanguageChange} />
         </div>
       </div>
-      <div className="flex-1 p-4 overflow-y-auto">
-        <div className="space-y-4">
+      <div
+        className="flex-1 justify-between p-4 overflow-y-auto "
+        ref={chatContainerRef}
+      >
+        <div className="space-y-4 flex flex-col">
           {messages.map((chat, index) => (
             <div
               key={index}
               className={`p-4 rounded-xl ${
-                chat.sender === "You" ? "bg-blue-100" : "bg-gray-50"
+                chat.sender === "You"
+                  ? "self-end bg-blue-100 text-left max-w-[90%]"
+                  : "self-start bg-gray-50 max-w-[90%] text-left"
               }`}
             >
               {typeof chat.message === "string" ? (
-                <div className="text-sm font-light">{chat.message}</div>
+                <div className="text-[0.83rem] opacity-95">{chat.message}</div>
               ) : (
                 chat.message.map((line, lineIndex) => (
                   <div key={lineIndex} className="text-[0.83rem] opacity-95">
@@ -120,16 +157,20 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId }) => {
           <div ref={messagesEndRef} />
         </div>
       </div>
-      <div className="px-5 py-2 mb-1 border-gray-100 flex w-full">
+      <div
+        className={`px-5 py-2 mb-1 ${
+          user.id === 4 ? "hidden" : ""
+        } border-gray-100 flex w-full`}
+      >
         <div className="bg-gray-100 flex items-center align-center justify-between rounded-xl min-w-[90%] font-light text-sm">
           <input
             type="text"
             value={message}
-            placeholder="Type your message here"
+            placeholder="This is my application to be a frontend dev at SuperDM."
             onChange={(e) => setMessage(e.target.value)}
-            className=" min-w-[90%]  p-3 border-none outline-none bg-gray-100 decoration-0  flex-1"
+            className="min-w-[90%] p-3 border-none outline-none bg-gray-100 flex-1"
           />
-          <div className=" flex items-center justify-center min-w-[10%]">
+          <div className="flex items-center justify-center min-w-[10%]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="2em"
@@ -162,6 +203,16 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId }) => {
           </svg>
         </button>
       </div>
+      {user.id == 4 && (
+        <div className=" my-2 flex mx-2 text-center space-x-3 text-[0.83rem] opacity-95">
+          <Link className="p-4 w-1/2 rounded-xl  bg-blue-100" href="https://github.com/Codeforme1234/SuperDM">
+            <div className=" ">Github</div>
+          </Link>
+          <Link className="p-4 w-1/2 rounded-xl  bg-blue-100" href="https://www.linkedin.com/in/deveshtiwarii/">
+            <div className=" ">Resume</div>
+          </Link>
+        </div>
+      )}
     </div>
   );
 };

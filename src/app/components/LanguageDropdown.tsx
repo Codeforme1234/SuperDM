@@ -16,17 +16,40 @@ const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
     onSelectLanguage(language);
   };
 
+  const options = [
+    {
+      id: 1,
+      lang: "English",
+      value: "en",
+    },
+    {
+      id: 2,
+      lang: "French",
+      value: "fr",
+    },
+    {
+      id: 3,
+      lang: "Spanish",
+      value: "es",
+    },
+    {
+      id: 4,
+      lang: "German",
+      value: "de",
+    },
+  ];
+
   return (
     <select
       value={selectedLanguage}
       onChange={handleLanguageChange}
-      className="p-2 border rounded bg-white text-sm"
+      className="p-2 border-none outline-none rounded bg-white text-sm"
     >
-      <option value="en">English</option>
-      <option value="fr">French</option>
-      <option value="es">Spanish</option>
-      <option value="de">German</option>
-      {/* Add more languages as needed */}
+      {options.map((value) => (
+        <option key={value.id} value="value.value">
+          {value.lang}
+        </option>
+      ))}
     </select>
   );
 };
